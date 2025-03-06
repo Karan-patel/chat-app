@@ -177,24 +177,6 @@ docker tag chat-app:latest your-dockerhub-username/chat-app:latest
 docker push your-dockerhub-username/chat-app:latest
 ```
 
-### Using Kubernetes
-1. Ensure you have a Kubernetes cluster running (e.g., via Minikube or a cloud provider).
-2. Update k8s.yaml with your Docker Hub image name (e.g., your-dockerhub-username/chat-app:latest).
-3. Deploy to Kubernetes:
-
-```bash
-kubectl apply -f k8s.yaml
-```
-4. Check the deployment:
-```bash
-kubectl get pods
-kubectl get services
-```
-
-5. Access the service via the LoadBalancer IP (e.g., kubectl get svc chat-app-service).
-
-- **Note: The k8s.yaml includes a PersistentVolumeClaim for chat.db to ensure data persistence across pod restarts.**
-
 ## Scaling
 
 - **Since this app is containerized, it can be scaled with K8, just required to add K8.yaml config with container, service and pod details**
