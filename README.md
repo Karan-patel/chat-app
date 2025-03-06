@@ -197,17 +197,8 @@ kubectl get services
 
 ## Scaling
 
-- **Increase replicas in k8s.yaml (e.g., replicas: 5) and reapply:**
+- **Since this app is containerized, it can be scaled with K8, just required to add K8.yaml config with container, service and pod details**
 
-   ```bash
-   kubectl apply -f k8s.yaml
-   ```
-
-- **Monitor with:**
-
-   ```bash
-   kubectl get deployments
-   ```
 
 ## Troubleshooting
 - **PHP not found: Ensure PHP 8.2+ is installed and in your PATH.**
