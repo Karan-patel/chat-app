@@ -2,12 +2,9 @@
 namespace App;
 
 use DI\Container;
-use Dotenv\Dotenv;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Phar;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Slim\App;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory as SlimAppFactory;
@@ -21,13 +18,6 @@ class AppFactory
 
     public function __construct()
     {
-        // Get project root using the standard function
-        $projectRoot = getProjectRoot();
-
-        // Load .env from project root
-        $dotenv = Dotenv::createImmutable($projectRoot);
-        $dotenv->load();
-
         $this->config = require __DIR__ . '/../config/config.php';
         $this->container = new Container();
         $this->configureContainer();
@@ -140,69 +130,4 @@ class AppFactory
             return $response->withStatus($statusCode)->withHeader('Content-Type', 'application/json');
         };
     }
-}
-
-/**
- * Determines the project root directory in a robust, environment-agnostic manner.
- *
- * Resolves the project root based on the execution context:
- * - Local: Uses the parent directory of src/ (project root) or the script's directory.
- * - Phar: Uses the directory containing the .phar file or the script's directory.
- * - Docker: Uses the working directory (e.g., /var/www) or /app if detected.
- *
- * @return string The resolved project root directory.
- * @throws RuntimeException If the project root cannot be determined or is not a valid directory.
- */
-function getProjectRoot(): string
-{
-    // Start with the script's directory (works for local and .phar)
-    $scriptPath = realpath($_SERVER['SCRIPT_FILENAME'] ?? $_SERVER['argv'][0] ?? __FILE__);
-    $scriptDir = $scriptPath ? dirname($scriptPath) : null;
-
-    // 1. Phar context: Prefer .phar location if available
-    if (defined('__PHP_PHAR__') && Phar::running(false) !== '') {
-        $pharPath = Phar::running(false);
-        $root = dirname($pharPath);
-        if ($root && is_dir($root)) {
-            return $root;
-        }
-        if ($scriptDir && is_dir($scriptDir)) {
-            return $scriptDir;
-        }
-    }
-
-    // 2. Local context: Try parent of src/ first, then script directory
-    $localRoot = realpath(__DIR__ . '/..');
-    if ($localRoot && is_dir($localRoot)) {
-        return $localRoot;
-    }
-    if ($scriptDir && is_dir($scriptDir)) {
-        return $scriptDir;
-    }
-
-    // 3. Docker context: Check for Docker and use working directory
-    if (file_exists('/.dockerenv') || getenv('DOCKER_ENV') !== false) {
-        $dockerRoot = '/app';
-        if (is_dir($dockerRoot)) {
-            return $dockerRoot;
-        }
-        $cwd = getcwd();
-        if ($cwd && is_dir($cwd)) {
-            return $cwd;
-        }
-    }
-
-    // Final fallback: Current working directory
-    $cwd = getcwd();
-    if ($cwd && is_dir($cwd)) {
-        return $cwd;
-    }
-
-    throw new RuntimeException(
-        'Unable to determine project root directory. ' .
-        'Phar path: ' . (Phar::running(false) ?: 'not set') . ', ' .
-        'Script path: ' . ($scriptPath ?: 'not set') . ', ' .
-        'Local root: ' . ($localRoot ?: 'not resolved') . ', ' .
-        'CWD: ' . (getcwd() ?: 'not set')
-    );
 }

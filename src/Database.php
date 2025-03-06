@@ -3,7 +3,6 @@ namespace App;
 require_once __DIR__ . '/../src/Exceptions.php';
 
 use PDO;
-use Phar;
 
 class Database
 {
@@ -11,39 +10,16 @@ class Database
 
     public function __construct(string $dbPath)
     {
-        // Determine base directory based on execution context
-        if (defined('__PHP_PHAR__')) {
-            // Inside .phar: Use the directory where .phar is executed
-            $baseDir = dirname(Phar::running(false)) ?: getcwd();
-        } else {
-            // Local: Use project root (where .env resides)
-            $baseDir = realpath(__DIR__ . '/..') ?: getcwd();
-        }
 
-        // Resolve full database path, normalizing separators
-        $fullDbPath = $baseDir . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $dbPath);
-
-        // Ensure the directory exists and is writable
-        $dbDir = dirname($fullDbPath);
-        if (!is_dir($dbDir)) {
-            if (!mkdir($dbDir, 0777, true) && !is_dir($dbDir)) {
-                throw new \RuntimeException("Cannot create database directory: $dbDir");
-            }
-        }
-
-        // Ensure the database file exists and is writable
-        if (!file_exists($fullDbPath)) {
-            if (!touch($fullDbPath) || !is_writable($fullDbPath)) {
-                throw new \RuntimeException("Cannot create or write to database file: $fullDbPath");
-            }
-        }
+        $fullDbPath = $dbPath !== ':memory:'
+            ? realpath(__DIR__ . '/..') ?: getcwd() . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $dbPath)
+            : $dbPath;
 
         // Open SQLite connection
         try {
             $this->pdo = new \PDO("sqlite:$fullDbPath", null, null, [
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_PERSISTENT => false,
-                \PDO::SQLITE_ATTR_OPEN_FLAGS => \SQLITE3_OPEN_READWRITE | \SQLITE3_OPEN_CREATE
             ]);
             $this->pdo->exec("PRAGMA synchronous = FULL");
         } catch (\PDOException $e) {

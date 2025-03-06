@@ -9,30 +9,11 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 class FullAppEndToEndTest extends TestCase
 {
     private $app;
-    private $dbFile;
 
     protected function setUp(): void
     {
-        $this->dbFile = __DIR__ . '/../test_chat.db';
-        if (file_exists($this->dbFile)) {
-            unlink($this->dbFile);
-        }
-
-        $envContent = "DB_PATH=test_chat.db\nDISPLAY_ERRORS=true\nLOG_ERRORS=true\nLOG_ERROR_DETAILS=true";
-        file_put_contents(__DIR__ . '/../.env', $envContent);
-
         $appFactory = new AppFactory();
         $this->app = $appFactory->create();
-    }
-
-    protected function tearDown(): void
-    {
-        if (file_exists($this->dbFile)) {
-            unlink($this->dbFile);
-        }
-        if (file_exists(__DIR__ . '/../.env')) {
-            unlink(__DIR__ . '/../.env');
-        }
     }
 
     public function testListGroupsPositive(): void

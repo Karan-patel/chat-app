@@ -17,23 +17,13 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 
 class EndToEndTest extends TestCase
 {
-    private $db;
     private $middleware;
     private $messageController;
     private $groupController;
 
     protected function setUp(): void
     {
-        $this->dbFile = __DIR__ . '/../test_chat.db';
-        if (file_exists($this->dbFile)) {
-            unlink($this->dbFile);
-        }
-
-        $envContent = "DB_PATH=test_chat.db\nDISPLAY_ERRORS=true\nLOG_ERRORS=true\nLOG_ERROR_DETAILS=true";
-        file_put_contents(__DIR__ . '/../.env', $envContent);
-
-        $config = require __DIR__ . '/../config/config.php';
-        $this->db = new Database($config['db_path']); // Use file-based db_path from config
+        $this->db = new Database(':memory:'); // Use file-based db_path from config
         $this->middleware = new UserMiddleware($this->db);
         $this->messageController = new MessageController($this->db);
         $this->groupController = new GroupController($this->db);
@@ -42,12 +32,6 @@ class EndToEndTest extends TestCase
     protected function tearDown(): void
     {
         unset($this->db, $this->middleware, $this->messageController, $this->groupController);
-        if (file_exists($this->dbFile)) {
-            unlink($this->dbFile);
-        }
-        if (file_exists(__DIR__ . '/../.env')) {
-            unlink(__DIR__ . '/../.env');
-        }
     }
 
     public function testFullFlowMissingUsernameHeader(): void

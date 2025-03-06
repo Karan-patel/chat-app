@@ -7,9 +7,9 @@ $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
 return [
-    'db_path' => getenv('DB_PATH') ?: 'db/chat.db',
-    'displayErrorDetails' => (bool)(getenv('DISPLAY_ERRORS') ?: true),
-    'logErrors' => (bool)(getenv('LOG_ERRORS') ?: true),
-    'logErrorDetails' => (bool)(getenv('LOG_ERROR_DETAILS') ?: true),
-    'logFile' => __DIR__ . '/../logs/app.log',
+    'db_path' => $_ENV['DB_PATH'] ?? ':memory:',
+    'displayErrorDetails' => (bool)($_ENV['DISPLAY_ERRORS'] ?? false),
+    'logErrors' => (bool)($_ENV['LOG_ERRORS'] ?? true),
+    'logErrorDetails' => (bool)($_ENV['LOG_ERROR_DETAILS'] ?? false),
+    'logFile' => '/logs/app.log'
 ];
