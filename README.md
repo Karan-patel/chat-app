@@ -28,7 +28,7 @@ chat-app/
 ├── .env # Environment variables (not committed)  
 ├── composer.json # Composer dependencies and autoloading  
 ├── Dockerfile # Docker configuration for deployment  
-├── phpunit.xml # Testcase config file
+├── phpunit.xml # Testcase config file  
 └── schema.sql # SQLite schema for tables
 
 ## Technology and Framework
@@ -95,7 +95,7 @@ The application categorizes and handles errors effectively:
 
 To get started:
 
-- **Prerequisites**: PHP 8.x, Composer, Docker (optional).
+- **Prerequisites**: PHP 8.x, Composer, sqlite(& .db file), Docker (optional).
 - **Setup**: Clone the repo, run `composer install`, ensure `schema.sql` is present.
 - **db**: `db/chat.db` file (db file as per path in `.env` config **must** be present)
 - **Key Files**: Review `public/index.php`, `src/AppFactory.php`, and `tests/`.
