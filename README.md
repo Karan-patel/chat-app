@@ -4,16 +4,16 @@ This is a lightweight, RESTful chat application built with PHP and the Slim fram
 join them, send messages, and list messages or groups, leveraging a SQLite database for persistence. 
 The project showcases modern PHP practices, design patterns, and optimizations for scalability and maintainability.
 
-## Directory Structure
+## 📂 Directory Structure
 
-chat-app/  
-├── **config**/  
+🗂️**chat-app**/  
+├── 📁**config**/  
 │ └── config.php # Configuration loading from .env  
-├── **logs**/  
+├── 📁**logs**/  
 │ └── app.log # Log file (generated)  
-├── **public**/  
+├── 📁**public**/  
 │ └── index.php # Application entry point  
-├── **src**/  
+├── 📁**src**/  
 │ ├── AppFactory.php # Factory for Slim app creation  
 │ ├── Database.php # SQLite database handling  
 │ ├── Exceptions.php # Custom exception classes  
@@ -21,17 +21,19 @@ chat-app/
 │ ├── MessageController.php # Message-related endpoints  
 │ ├── Routes.php # Route definitions  
 │ └── UserMiddleware.php # Middleware for user authentication  
-├── **tests**/  
-│ ├── EndToEndTest.php # Original end-to-end tests  
-│ ├── FullAppEndToEndTest.php # Simplified per-endpoint tests  
-│ └── FinalEndToEndTest.php # Final comprehensive test  
-├── .env # Environment variables (not committed)  
-├── composer.json # Composer dependencies and autoloading  
-├── Dockerfile # Docker configuration for deployment  
-├── phpunit.xml # Testcase config file  
-└── schema.sql # SQLite schema for tables
+├── 📁**tests**/  
+│ ├── AllTests.php   #Unit test for most of scenario with mock
+│ ├── EndToEndTest.php # End-to-end tests with in-memory DB operation  
+│ ├── FullAppEndToEndTest.php # Original end-to-end tests even loading entire application from scratch  
+│ ├── GroupControllerTest.php # Unit test for GroupController  
+│ └── UserMiddlewareTest.php  # Unit test for UserMiddleware  
+├── .env # Environment variables (not committed)    
+├── composer.json # Composer dependencies and autoloading    
+├── Dockerfile # Docker configuration for deployment    
+├── phpunit.xml # Testcase config file    
+└── schema.sql # SQLite schema for tables  
 
-## Technology and Framework
+## 🛠️⚡ Technology and Framework
 
 - **PHP**: Version 8.x for modern features like typed properties and attributes.
 - **Slim Framework**: A micro-framework (v4.x) for routing and middleware, chosen for its lightweight nature and
@@ -42,7 +44,7 @@ chat-app/
 - **Dotenv**: Loads environment variables from `.env` for configuration.
 - **PHPUnit**: Testing framework for unit and end-to-end tests.
 
-### Design Patterns and Optimizations
+### 🎨✨ Design Patterns and Optimizations
 
 - **SOLID Principles**:
     - *Single Responsibility Principle (SRP)*: Each class has a single purpose (e.g., `GroupController` for group
@@ -76,7 +78,7 @@ chat-app/
 - **Testability**:
     - Supported by **PHPUnit** with comprehensive tests to verify functionality and prevent regressions.
 
-### Error Types
+### ⚠️ Error Types
 
 The application categorizes and handles errors effectively:
 
@@ -91,7 +93,7 @@ The application categorizes and handles errors effectively:
 - **Custom Exceptions**:
     - `BadRequestException`, `NotFoundException`, `ForbiddenException`, `DatabaseException` for precise error handling.
 
-## Familiarization
+## 🧐📖 Familiarization
 
 To get started:
 
@@ -108,7 +110,7 @@ Familiarity with REST APIs, PHP namespaces, and DI will help navigate the codeba
 
 Create db as per file configured in `.env`.
 
-```sh
+```sql
 sqlite3 db/chat.db #path as per configuration
 ```
 
@@ -125,7 +127,9 @@ The `Database` class uses PDO with prepared statements to prevent SQL injection,
 optimized for efficiency, such as joining tables in `getMessagesByGroup` to fetch sender usernames in one call, avoiding
 N+1 query problems.
 
-All endpoints require the `X-Username` header for user identification.
+## 🌍 Endpoints
+
+**All endpoints require the `X-Username` header for user identification.**
 
 |  Method  | Endpoint                | Description         | Example Request                                                                                                                             |
 |:--------:|:------------------------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
@@ -138,9 +142,10 @@ All endpoints require the `X-Username` header for user identification.
 The `UserMiddleWare` extracts the `X-Username` header, creates the user if not exists, and attaches the user ID to the
 request, following the Chain of Responsibility pattern for middleware processing.
 
-## Deployment
+## 🚀🌍 Deployment
 
-#### Using PHAR File
+
+#### 📦 Using PHAR File
 
 The PHP equivalent of a JAR file is a PHAR file, created using PHP’s `Phar` class. The `build-phar.php` script
 builds `chat-app.phar`, including:
@@ -160,7 +165,7 @@ It will create 'chat-app.phar', once created you can run application with below 
 php -S localhost:8000 chat-app.phar
 ```
 
-### Running in local
+### 💻 Running in local
 
 If you want to run directly in local, run via below command.
 
@@ -168,7 +173,7 @@ If you want to run directly in local, run via below command.
 php -S localhost:8000 -t public #<path to 'public' dir where index file located>
 ```
 
-### Running in container (Docker)
+### 🐳 Running in container (Docker)
 
 1. **Build the Docker image:**
 
@@ -176,39 +181,46 @@ php -S localhost:8000 -t public #<path to 'public' dir where index file located>
 docker build -t chat-app:latest .
 ```
 
-2. **Run docker container (Optional)**
-
-&emsp;&emsp;**For Linux / macOS (Bash, Zsh, etc.)**
+2. **Run docker container**
 
 ```sh
-  docker run -d -p 8000:8000 -v "$(pwd):/var/www" --name chat-app-container chat-app
+  docker run -d -p 8000:8000 -v "$(pwd):/var/www" --name chat-app-container chat-app #For Linux / macOS (Bash, Zsh, etc.)
+  docker run -d -p 8000:8000 -v "${PWD}:/var/www" --name chat-app-container chat-app #Windows (PowerShell)
+  docker run -d -p 8000:8000 -v "%cd%:/var/www" --name chat-app-container chat-app   #For Windows CMD
 ```
 
-&emsp;&emsp; **For Windows (PowerShell)**
-
-```sh
-  docker run -d -p 8000:8000 -v "${PWD}:/var/www" --name chat-app-container chat-app
-```
-
-&emsp;&emsp; **For Windows CMD**
-
-```sh
-  docker run -d -p 8000:8000 -v "%cd%:/var/www" --name chat-app-container chat-app
-```
-
-Access at http://localhost.
-
-3. Push to Docker Hub (replace your-dockerhub-username with your username):**
+3. **Push to Docker Hub (replace your-dockerhub-username with your username):**
 
 ```bash
-docker tag chat-app:latest your-dockerhub-username/chat-app:latest
-docker push your-dockerhub-username/chat-app:latest
+docker tag chat-app:latest your-dockerhub-username/chat-app:latest #tag
+docker push your-dockerhub-username/chat-app:latest                #push
 ```
 
-## Containerization
+## ⚡ Important Before Deployment
+
+Before deploying, **ensure that the database file configured in `.env` exists** and has the required access **permissions**. Without it, the application might not function correctly! 🚨
+
+👉 If the database is not created yet, follow the instructions above to set it up.
+
+
+## ✅ Verify Deployment
+
+After deploying the application, ensure it is running correctly by accessing:
+
+🔗 **http://localhost:8080**
+
+If successful, the response should be:
+
+```json
+{
+  "message": "Hello from bunq!"
+}
+```
+
+## 🐳 Containerization
 This application is fully containerized using Docker, making it platform-independent and capable of running anywhere—Windows, Linux, macOS, or any cloud provider—without modification.
 
-## Scalability with Kubernetes
+## ☸️ Scalability with Kubernetes
 
 Since the app is `containerized`, it can be seamlessly scaled using Kubernetes (K8s), a powerful orchestration platform. By adding a k8s.yaml configuration file with appropriate container, service, and pod details, you can:
 
@@ -216,7 +228,7 @@ Since the app is `containerized`, it can be seamlessly scaled using Kubernetes (
 - **Ensure High Availability**: Distribute instances across nodes for fault tolerance.
 - **Automate Management**: Leverage K8s features like auto-scaling, self-healing, and load balancing.
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 - **PHP not found: Ensure PHP 8.2+ is installed and in your PATH.**
 
@@ -228,10 +240,21 @@ Since the app is `containerized`, it can be seamlessly scaled using Kubernetes (
 
 - **Database errors: Verify chat.db exists and is writable:**
 
-   ```bash
-      chmod 666 chat.db
-   ```
+ ```bash
+  chmod 666 chat.db #<your db path e.g. db.chat.db>
+ ```
 
-## License
+## 🛠 License & Freedom to Build!
 
-This project is provided as-is for learning and personal purposes.
+This project is open-source because **great ideas should be shared**! 🚀
+
+Feel free to **fork it, tweak it, break it, improve it**, and send a PR if you make it better!  
+Just be awesome and give credit where it's due.
+
+## 🚀 The Journey Begins!
+This is my **first-ever** PHP application—just the start of something awesome! 🌟
+Contributions, feedback, or just a virtual high-five? All are welcome! 🤝
+
+Let's build, break, and innovate—together! 💡🔥
+
+Let's connect! 🤝 Find me on [LinkedIn](https://www.linkedin.com/in/karanptel/) and let's build something **epic!** 💡🔥  
