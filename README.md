@@ -22,7 +22,7 @@ The project showcases modern PHP practices, design patterns, and optimizations f
 │ ├── Routes.php # Route definitions  
 │ └── UserMiddleware.php # Middleware for user authentication  
 ├── 📁**tests**/  
-│ ├── AllTests.php   #Unit test for most of scenario with mock
+│ ├── AllTests.php   #Unit test for most of scenario with mock  
 │ ├── EndToEndTest.php # End-to-end tests with in-memory DB operation  
 │ ├── FullAppEndToEndTest.php # Original end-to-end tests even loading entire application from scratch  
 │ ├── GroupControllerTest.php # Unit test for GroupController  
