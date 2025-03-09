@@ -5,8 +5,6 @@ FROM php:8.1-fpm-bullseye
 WORKDIR /var/www
 
 # Install dependencies in a single RUN to reduce layers and cache effectively
-# Install dependencies including git, unzip, and zip extension
-# Install dependencies including git, unzip, libzip-dev, and zip extension
 RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev \
@@ -25,19 +23,18 @@ COPY public/ /var/www/public/
 COPY config/ /var/www/config/
 COPY .env /var/www/
 
-# For db
-RUN mkdir /var/www/db
-RUN sqlite3 /var/www/db/chat.db
-
 # Install Composer dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions
+# Set permissions first, then create database
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www
+    && chmod -R 755 /var/www \
+    && mkdir -p /var/www/db \
+    && sqlite3 /var/www/db/chat.db "CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT);" \
+    && chown www-data:www-data /var/www/db/chat.db
 
 # Expose port
 EXPOSE 8000
 
-# Run PHP built-in server
+# Run PHP built-in server (for development)
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "public/"]

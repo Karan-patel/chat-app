@@ -17,13 +17,14 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 
 class EndToEndTest extends TestCase
 {
-    private $middleware;
-    private $messageController;
-    private $groupController;
+    private UserMiddleware $middleware;
+    private MessageController $messageController;
+    private GroupController $groupController;
+    private Database $db;
 
     protected function setUp(): void
     {
-        $this->db = new Database(':memory:'); // Use file-based db_path from config
+        $this->db = new Database(':memory:');
         $this->middleware = new UserMiddleware($this->db);
         $this->messageController = new MessageController($this->db);
         $this->groupController = new GroupController($this->db);

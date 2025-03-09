@@ -6,7 +6,8 @@ use App\UserMiddleware;
 use Slim\App;
 
 return function (App $app) {
-    // Default root route
+
+    // Default root route '/'
     $app->get('/', function ($request, $response) {
         $response->getBody()->write(json_encode(['message' => 'Hello from bunq!']));
         return $response->withHeader('Content-Type', 'application/json');

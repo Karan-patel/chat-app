@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 require_once __DIR__ . '/../src/Exceptions.php';
 
@@ -11,17 +12,15 @@ class Database
     public function __construct(string $dbPath)
     {
 
+        $rootDir = \Phar::running(false) ? dirname(\Phar::running(false)) : dirname(__DIR__);
         $fullDbPath = $dbPath !== ':memory:'
-            ? realpath(__DIR__ . '/..') ?: getcwd() . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $dbPath)
-            : $dbPath;
+            ? join(DIRECTORY_SEPARATOR, [$rootDir, $dbPath]) : $dbPath;
 
         // Open SQLite connection
         try {
-            $this->pdo = new \PDO("sqlite:$fullDbPath", null, null, [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_PERSISTENT => false,
+            $this->pdo = new PDO("sqlite:$fullDbPath", null, null, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             ]);
-            $this->pdo->exec("PRAGMA synchronous = FULL");
         } catch (\PDOException $e) {
             throw new \RuntimeException("Failed to initialize database at $fullDbPath: " . $e->getMessage());
         }

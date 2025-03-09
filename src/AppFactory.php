@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use DI\Container;
@@ -14,7 +15,7 @@ use Throwable;
 class AppFactory
 {
     private $config;
-    private $container;
+    private Container $container;
 
     public function __construct()
     {
@@ -66,15 +67,15 @@ class AppFactory
             return new Database($this->config['db_path']);
         });
 
-        $this->container->set(UserMiddleware::class, function ($container) {
+        $this->container->set(UserMiddleware::class, static function ($container) {
             return new UserMiddleware($container->get(Database::class));
         });
 
-        $this->container->set(GroupController::class, function ($container) {
+        $this->container->set(GroupController::class, static function ($container) {
             return new GroupController($container->get(Database::class));
         });
 
-        $this->container->set(MessageController::class, function ($container) {
+        $this->container->set(MessageController::class, static function ($container) {
             return new MessageController($container->get(Database::class));
         });
 
@@ -91,10 +92,10 @@ class AppFactory
 
         return function (
             ServerRequestInterface $request,
-            Throwable $exception,
-            bool $displayErrorDetails,
-            bool $logErrors,
-            bool $logErrorDetails
+            Throwable              $exception,
+            bool                   $displayErrorDetails,
+            bool                   $logErrors,
+            bool                   $logErrorDetails
         ) use ($container) {
             $response = (new ResponseFactory())->createResponse();
             $statusCode = 500;
@@ -110,7 +111,6 @@ class AppFactory
                 $statusCode = 403;
                 $message = $exception->getMessage();
             } elseif ($exception instanceof DatabaseException) {
-                $statusCode = 500;
                 $message = $displayErrorDetails ? $exception->getMessage() : 'Database error occurred';
             } elseif ($exception instanceof HttpNotFoundException) {
                 $statusCode = 404;

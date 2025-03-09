@@ -1,10 +1,11 @@
 <?php
+
 namespace App;
 require_once __DIR__ . '/../src/Exceptions.php';
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Slim\Psr7\Response;
 
 class UserMiddleware
 {
@@ -15,7 +16,14 @@ class UserMiddleware
         $this->db = $db;
     }
 
-    public function __invoke(Request $request, RequestHandler $handler): Response
+    /**
+     * Extracts the `X-Username` header, creates the user if not exists, and attaches the user ID to the
+     * request, following the Chain of Responsibility pattern for middleware processing.
+     *
+     * @throws BadRequestException
+     * @throws DatabaseException
+     */
+    public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
         $username = $request->getHeaderLine('X-Username');
         if (empty($username)) {

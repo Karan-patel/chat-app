@@ -1,8 +1,6 @@
 # Chat Application
 
-This is a lightweight, RESTful chat application built with PHP and the Slim framework. It allows users to create groups,
-join them, send messages, and list messages or groups, leveraging a SQLite database for persistence. 
-The project showcases modern PHP practices, design patterns, and optimizations for scalability and maintainability.
+This is a lightweight, RESTful chat application built with PHP and the Slim framework. It allows users to create groups, join them, send messages, and list messages or groups, leveraging a SQLite database for persistence. The project showcases modern PHP practices, design patterns, and optimizations for scalability and maintainability.
 
 ## 📂 Directory Structure
 
@@ -47,85 +45,78 @@ The project showcases modern PHP practices, design patterns, and optimizations f
 ### 🎨✨ Design Patterns and Optimizations
 
 - **SOLID Principles**:
-    - *Single Responsibility Principle (SRP)*: Each class has a single purpose (e.g., `GroupController` for group
-      operations).
-    - *Open/Closed Principle (OCP)*: The app supports extensions without altering existing code.
-    - *Interface Segregation Principle (ISP)*: Dependencies are kept minimal and specific.
-    - *Dependency Inversion Principle (DIP)*: High-level modules rely on abstractions via DI.
+  - *Single Responsibility*: Classes like `GroupController` handle one task.
+  - *Open/Closed*: Extensible without modifying core code.
+  - *Interface Segregation*: Minimal, specific dependencies.
+  - *Dependency Inversion*: Uses DI for loose coupling.
 
-- **Dependency Injection (DI)**:
-    - Implemented using **PHP-DI** to manage dependencies, ensuring loose coupling and easier testing.
-
-- **Factory Pattern**:
-    - Used in **AppFactory** to centralize app creation and configuration.
-
-- **Middleware Pattern**:
-    - Employed via **UserMiddleware** for authentication, promoting separation of concerns.
-
-- **Configuration Management**:
-    - Settings are externalized in **.env** and **config.php**, following the **12 Factor App** methodology.
-
-- **Error Handling**:
-    - Custom exceptions (e.g., `BadRequestException`, `NotFoundException`) and **Monolog** for **centralized logging.**
-
-- **Autoloading and PSR Standards**:
-    - **PSR-4 Autoloading** via Composer reduces manual includes.
-    - **PSR-12 Coding Standards** ensure consistent code.
-
-- **Separation of Concerns (SoC)**:
-    - Distinct layers for routing, business logic, data access, and middleware enhance maintainability.
-
-- **Testability**:
-    - Supported by **PHPUnit** with comprehensive tests to verify functionality and prevent regressions.
+- **Dependency Injection**: Via **PHP-DI** for testability and flexibility.
+- **Factory Pattern**: `AppFactory` centralizes app setup.
+- **Middleware**: `UserMiddleware` for authentication.
+- **12 Factor App**: Config in `.env` and `config.php`.
+- **Error Handling**: Custom exceptions and Monolog logging.
+- **PSR Standards**: PSR-4 autoloading, PSR-12 coding style.
+- **Separation of Concerns**: Clear layers for routing, logic, and data.
+- **Testability**: Comprehensive PHPUnit tests.
 
 ### ⚠️ Error Types
 
-The application categorizes and handles errors effectively:
-
 - **Client Errors (4xx)**:
-    - *400 Bad Request*: Invalid input (e.g., missing `X-Username`).
-    - *403 Forbidden*: Unauthorized actions (e.g., messaging without group membership).
-    - *404 Not Found*: Missing resources (e.g., invalid group ID).
-
+  - *400 Bad Request*: Invalid input (e.g., missing `X-Username`).
+  - *403 Forbidden*: Unauthorized actions (e.g., non-member messaging).
+  - *404 Not Found*: Missing resources (e.g., invalid group ID).
 - **Server Errors (5xx)**:
-    - *500 Internal Server Error*: Database failures or unexpected issues, logged for resolution.
-
-- **Custom Exceptions**:
-    - `BadRequestException`, `NotFoundException`, `ForbiddenException`, `DatabaseException` for precise error handling.
+  - *500 Internal Server Error*: Logged database or runtime failures.
+- **Custom Exceptions**: `BadRequestException`, `NotFoundException`, etc.
 
 ## 🧐📖 Familiarization
 
 To get started:
 
-- **Prerequisites**: PHP 8.x, Composer, sqlite(& .db file), Docker (optional).
-- **Setup**: Clone the repo, run `composer install`, ensure `schema.sql` is present.
-- **db**: `db/chat.db` file (db file as per path in `.env` config **must** be present)
-- **Key Files**: Review `public/index.php`, `src/AppFactory.php`, and `tests/`.
-- **Run Locally**: Use `php -S localhost:8000 -t public/` to start the server.
-- **Run Phar**: Use `php -S localhost:8000 chat-app.phar` after creating `chat-app.phar`.
+### Prerequisites
+- PHP 8.x
+- Composer
+- SQLite (bundled with PHP)
+- Docker (optional)
 
 Familiarity with REST APIs, PHP namespaces, and DI will help navigate the codebase.
 
-#### Database Schema and Operations
-
-Create db as per file configured in `.env`.
-
-```sql
-sqlite3 db/chat.db #path as per configuration
+### Setup
+1. Clone the repo:
+```bash
+git clone <repo-url> chat-app
+cd chat-app
 ```
 
-The database schema is defined in `schema.sql`, read during initialization, ensuring maintainability. The schema
-includes:
+2. Install dependencies:
+```bash
+composer install
+```
+3. Configure `.env` (copy `.env`.example if provided):
+```bash
+composer DB_PATH=db/chat.db #path relative to root dir (i.e chat-app)
+```
+**Note: `DB_PATH` is relative to the project root (`chat-app/`), e.g., `db/chat.db` resolves to `chat-app/db/chat.db`.**
+4. Initialize the database:
 
-- `users`: Stores user IDs and usernames with a unique constraint.
-- `groups`: Stores group details, including the creator, with a foreign key to `users`.
-- `group_members`: Tracks membership with a composite primary key for efficiency, ensuring no duplicate memberships.
-- `messages`: Stores messages with timestamps, using SQLite’s `CURRENT_TIMESTAMP` for automatic setting, and foreign
+```bash
+sqlite3 db/chat.db
+```
+
+#### Database Schema
+
+
+Defined in `schema.sql`.
+
+- `users`: `(id, username UNIQUE)` Stores user IDs and usernames with a unique constraint.
+- `groups`: `(id, name, created_by)` Stores group details, including the creator, with a foreign key to `users`.
+- `group_members`: `(group_id, user_id)` Tracks membership with a composite primary key for efficiency, ensuring no duplicate memberships.
+- `messages`: `(id, group_id, user_id, message, timestamp)` Stores messages with timestamps, using SQLite’s `CURRENT_TIMESTAMP` for automatic setting, and foreign
   keys to `groups` and `users`.
 
 The `Database` class uses PDO with prepared statements to prevent SQL injection, ensuring security. Queries are
 optimized for efficiency, such as joining tables in `getMessagesByGroup` to fetch sender usernames in one call, avoiding
-N+1 query problems.
+**N+1** query problems.
 
 ## 🌍 Endpoints
 
@@ -145,35 +136,34 @@ request, following the Chain of Responsibility pattern for middleware processing
 ## 🚀🌍 Deployment
 
 
-#### 📦 Using PHAR File
+#### 📦 Using PHAR 
 
 The PHP equivalent of a JAR file is a PHAR file, created using PHP’s `Phar` class. The `build-phar.php` script
-builds `chat-app.phar`, including:
+builds `chat-app.phar`.
 
-- `app.php`, `src/`, `vendor/`, `.env` and `schema.sql`.
-- Excludes `tests/` and `db/chat.db`, as the latter must be separate for write operations.
-
-To build phar:
+Build a phar for a portable app:
 
 ```bash
 php build-phar.php
 ```
 
-It will create 'chat-app.phar', once created you can run application with below command.
+Run (requires public/index.php as stub entry):
 
 ```bash
-php -S localhost:8000 chat-app.phar
+php chat-app.phar
 ```
+**Note: SQLite DB (`db/chat.db`) must be external, relative to the PHAR’s execution directory.**
 
-### 💻 Running in local
+
+### 💻 Running Locally
 
 If you want to run directly in local, run via below command.
 
 ```bash
-php -S localhost:8000 -t public #<path to 'public' dir where index file located>
+php -S localhost:8000 -t public
 ```
 
-### 🐳 Running in container (Docker)
+### 🐳 Running in Docker
 
 1. **Build the Docker image:**
 
@@ -184,9 +174,8 @@ docker build -t chat-app:latest .
 2. **Run docker container**
 
 ```sh
-  docker run -d -p 8000:8000 -v "$(pwd):/var/www" --name chat-app-container chat-app #For Linux / macOS (Bash, Zsh, etc.)
-  docker run -d -p 8000:8000 -v "${PWD}:/var/www" --name chat-app-container chat-app #Windows (PowerShell)
-  docker run -d -p 8000:8000 -v "%cd%:/var/www" --name chat-app-container chat-app   #For Windows CMD
+docker run -d -p 8000:8000 -v "$(pwd):/var/www" chat-app:latest  # Linux/macOS
+docker run -d -p 8000:8000 -v "%cd%:/var/www" chat-app:latest    # Windows CMD
 ```
 
 3. **Push to Docker Hub (replace your-dockerhub-username with your username):**
@@ -198,16 +187,23 @@ docker push your-dockerhub-username/chat-app:latest                #push
 
 ## ⚡ Important Before Deployment
 
-Before deploying, **ensure that the database file configured in `.env` exists** and has the required access **permissions**. Without it, the application might not function correctly! 🚨
+🚨**Ensure that the database file configured in `.env` exists** and has the required access **permissions**. 
+Without it, the application might not function correctly! 
 
 👉 If the database is not created yet, follow the instructions above to set it up.
 
 
 ## ✅ Verify Deployment
 
-After deploying the application, ensure it is running correctly by accessing:
+Test the root endpoint:
 
 🔗 **http://localhost:8080**
+
+or
+
+```bash
+curl http://localhost:8000
+```
 
 If successful, the response should be:
 
@@ -215,6 +211,12 @@ If successful, the response should be:
 {
   "message": "Hello from bunq!"
 }
+```
+
+## 🧪 Running Tests
+
+```bash 
+vendor/bin/phpunit
 ```
 
 ## 🐳 Containerization
@@ -228,15 +230,43 @@ Since the app is `containerized`, it can be seamlessly scaled using Kubernetes (
 - **Ensure High Availability**: Distribute instances across nodes for fault tolerance.
 - **Automate Management**: Leverage K8s features like auto-scaling, self-healing, and load balancing.
 
+e.g.
+
+Add a k8s.yaml for Kubernetes deployment:
+
+```yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: chat-app
+  template:
+    metadata:
+      labels:
+        app: chat-app
+    spec:
+      containers:
+      - name: chat-app
+        image: yourusername/chat-app:latest
+        ports:
+        - containerPort: 8000
+```
+
+Apply with ```kubectl apply -f k8s.yaml```.
+
 ## 🔧 Troubleshooting
 
-- **PHP not found: Ensure PHP 8.2+ is installed and in your PATH.**
+- **PHP not found: Install PHP 8.x and add to PATH.**
 
 - **Composer errors: Verify internet connection and run composer update.**
 
-- **Docker build fails: Check Dockerfile syntax and ensure Docker is running.**
+- **Docker port mismatch: Use 8000, not 8080.**
 
-- **Kubernetes issues: Confirm cluster access and correct image name in k8s.yaml.**
+- **PHAR fails: Ensure public/index.php is in the PHAR stub.**
 
 - **Database errors: Verify chat.db exists and is writable:**
 

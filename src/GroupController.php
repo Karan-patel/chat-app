@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 require_once __DIR__ . '/../src/Exceptions.php';
@@ -9,12 +10,17 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class GroupController
 {
     private Database $db;
+    use ResponseTrait;
 
     public function __construct(Database $db)
     {
         $this->db = $db;
     }
 
+    /**
+     * Lists all groups.
+     * @throws DatabaseException
+     */
     public function listGroups(Request $request, Response $response, array $args): Response
     {
         try {
@@ -25,6 +31,11 @@ class GroupController
         return $this->jsonResponse($response, $groups);
     }
 
+    /**
+     * Creates group.
+     * @throws BadRequestException
+     * @throws DatabaseException
+     */
     public function createGroup(Request $request, Response $response, array $args): Response
     {
         $data = (array)$request->getParsedBody();
@@ -44,6 +55,11 @@ class GroupController
         return $this->jsonResponse($response, $group, 201);
     }
 
+    /**
+     * Add user to group.
+     * @throws NotFoundException
+     * @throws DatabaseException
+     */
     public function joinGroup(Request $request, Response $response, array $args): Response
     {
         $groupId = (int)$args['group_id'];
@@ -59,11 +75,5 @@ class GroupController
         }
 
         return $this->jsonResponse($response, ['status' => 'joined']);
-    }
-
-    private function jsonResponse(Response $response, $data, int $status = 200): Response
-    {
-        $response->getBody()->write(json_encode($data));
-        return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
     }
 }

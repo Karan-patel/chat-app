@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 require_once __DIR__ . '/../src/Exceptions.php';
@@ -9,12 +10,20 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class MessageController
 {
     private Database $db;
+    use ResponseTrait;
 
     public function __construct(Database $db)
     {
         $this->db = $db;
     }
 
+    /**
+     * INSERT MESSAGE WITH GROUP, USER IN TABLE.
+     * @throws ForbiddenException
+     * @throws BadRequestException
+     * @throws DatabaseException
+     * @throws NotFoundException
+     */
     public function sendMessage(Request $request, Response $response, array $args): Response
     {
         $groupId = (int)$args['group_id'];
@@ -42,6 +51,11 @@ class MessageController
         return $this->jsonResponse($response, $message, 201);
     }
 
+    /**
+     * FETCH ALL MESSAGES OF GROUP.
+     * @throws NotFoundException
+     * @throws DatabaseException
+     */
     public function listMessages(Request $request, Response $response, array $args): Response
     {
         $groupId = (int)$args['group_id'];
@@ -61,11 +75,5 @@ class MessageController
     private function validateString(?string $value): bool
     {
         return isset($value) && is_string($value) && !empty(trim($value));
-    }
-
-    private function jsonResponse(Response $response, $data, int $status = 200): Response
-    {
-        $response->getBody()->write(json_encode($data));
-        return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
     }
 }
