@@ -139,7 +139,11 @@ request, following the Chain of Responsibility pattern for middleware processing
 #### 📦 Using PHAR 
 
 The PHP equivalent of a JAR file is a PHAR file, created using PHP’s `Phar` class. The `build-phar.php` script
-builds `chat-app.phar`.
+builds `chat-app.phar`, including:
+
+- `config/`, `public/`, `src/`, `vendor/`, `.env` and `schema.sql`.
+- Excludes `tests/` and no relevant files, as the latter must be separate for write operations.
+
 
 Build a phar for a portable app:
 
