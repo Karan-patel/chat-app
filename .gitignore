@@ -1,0 +1,9 @@
+/.idea
+/vendor
+*.iml
+*.phar
+.phpunit.result.cache
+/data
+/logs
+composer.lock
+composer.phar
